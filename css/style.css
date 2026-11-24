@@ -59,18 +59,19 @@ body {
   font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  /* Tạo màu chữ gradient chuyển tiếp từ xanh ngọc sang xanh lục bảo rực rỡ */
+  /* Tạo màu chữ gradient chuyển tiếp từ xanh ngọc sang xanh lục bảo rực rỡ /
   background: linear-gradient(135deg, #a7f3d0 0%, #34d399 45%, #10b981 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 20px rgba(16, 185, 129, 0.15); /* Chữ phát sáng nhẹ */
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.15); / Chữ phát sáng nhẹ */
 }
 
-/* KHAY CHỨA 3 NÚT MENU LIỀN KHỐI */
+/* KHAY CHỨA MENU ĐIỀU HƯỚNG */
 .navbar nav {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 4px;
   background-color: #0b0e14;
   border: 1px solid #222b36;
@@ -97,9 +98,34 @@ body {
 
 .nav-link.active {
   background-color: #10b981;
-  color: #0b0e14;
+  color: #06130d;
+}
+
+/* Nút mở rộng Rubik 3D tách biệt nhưng vẫn gọn trên điện thoại */
+.nav-link-3d {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px dashed rgba(52, 211, 153, 0.6);
+  background: rgba(16, 185, 129, 0.12);
+  color: #6ee7b7;
+}
+
+.nav-link-3d:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-style: solid;
+  border-color: #34d399;
+  color: #a7f3d0;
+}
+
+.nav-3d-tag {
+  font-size: 0.65rem;
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: rgba(52, 211, 153, 0.24);
+  color: #a7f3d0;
+  line-height: 1.3;
 }
 
 .container {
@@ -167,12 +193,11 @@ button, a {
   line-height: 1.3;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .navbar {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 10px 14px;
-    gap: 10px;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px;
   }
 
   .brand {
@@ -180,14 +205,25 @@ button, a {
   }
 
   .navbar nav {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: 5px;
+  padding: 5px;
+  border-radius: 12px;
   }
 
   .nav-link {
-    padding: 8px 6px;
-    font-size: 0.84rem;
+  font-size: 0.78rem;
+  padding: 7px 6px;
+  border-radius: 8px;
+  }
+
+  .nav-link-3d {
+  grid-column: 1 / -1;
+  justify-content: center;
+  padding: 7px 10px;
+  margin-top: 2px;
   }
 
   .container {
