@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Q&A RUBIK — 3D Speedcubing Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --bg-base: #0b0e14;
+      --bg-panel: #111622;
+      --bg-card: #161d2d;
+      --accent-mint: #34d399;
+      --accent-emerald: #10b981;
+      --accent-glow: rgba(52, 211, 153, 0.28);
+      --border-subtle: rgba(52, 211, 153, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background-color: var(--bg-base);
+      background-image:
+        radial-gradient(circle at 18% 12%, rgba(16, 185, 129, 0.12), transparent 36%),
+        radial-gradient(circle at 82% 85%, rgba(52, 211, 153, 0.08), transparent 42%);
+      color: #e5e7eb;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .font-brand {
+      font-family: 'Chakra Petch', sans-serif;
+    }
+
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .neon-title {
+      background: linear-gradient(135deg, #a7f3d0 0%, #34d399 48%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 14px rgba(16, 185, 129, 0.22));
+    }
+
+    .panel-glass {
+      background: linear-gradient(180deg, rgba(20, 27, 41, 0.92) 0%, rgba(13, 18, 28, 0.96) 100%);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      border-radius: 16px;
+    }
+
+    .addon-studio-shell {
+      background:
+        linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.72) 22%, rgba(10, 14, 23, 0.92) 100%);
+      border: 1px solid rgba(52, 211, 153, 0.36);
+      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.12), 0 20px 46px rgba(0, 0, 0, 0.55), 0 0 32px rgba(16, 185, 129, 0.14);
+      border-radius: 20px;
+    }
+
+    .addon-badge {
+      background: linear-gradient(135deg, rgba(52, 211, 153, 0.22), rgba(16, 185, 129, 0.08));
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      box-shadow: 0 0 18px rgba(52, 211, 153, 0.2);
+    }
+
+    .btn-neon {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #06130d;
+      font-weight: 700;
+      border-radius: 10px;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.3);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+
+    .btn-neon:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 0 24px rgba(52, 211, 153, 0.48);
+      filter: brightness(1.06);
+    }
+
+    .btn-neon:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: #e2e8f0;
+      border-radius: 10px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+      background: rgba(52, 211, 153, 0.12);
+      border-color: rgba(52, 211, 153, 0.45);
+      color: #a7f3d0;
+    }
+
+    .btn-ghost:disabled,
+    .btn-neon:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .move-chip {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+      color: #cbd5e1;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 0.45rem 0.25rem;
+      transition: all 0.12s ease;
+    }
+
+    .move-chip:hover {
+      background: rgba(52, 211, 153, 0.16);
+      border-color: #34d399;
+      color: #6ee7b7;
+      transform: translateY(-1px);
+    }
+
+    .move-chip:active {
+      transform: scale(0.95);
+    }
+
+    .mode-tab {
+      border-radius: 10px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+
+    .mode-tab.active {
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+      border: 1px solid rgba(52, 211, 153, 0.5);
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.18);
+    }
+
+    .mode-tab:not(.active) {
+      color: #94a3b8;
+      border: 1px solid transparent;
+    }
+
+    .mode-tab:not(.active):hover {
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    #cube-viewport {
+      width: 100%;
+      height: 360px;
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 42%, rgba(16, 185, 129, 0.13), rgba(8, 12, 20, 0.96) 72%);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+      cursor: grab;
+      touch-action: none;
+    }
+
+    @media (min-width: 768px) {
+      #cube-viewport {
+        height: 430px;
+      }
+    }
+
+    #cube-viewport:active {
+      cursor: grabbing;
+    }
+
+    #cube-viewport canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Tùy chỉnh thanh cuộn danh sách lần giải */
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 999px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: rgba(52, 211, 153, 0.35);
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen flex flex-col max-w-7xl mx-auto px-3 sm:px-6 py-4 gap-4">
+    <!-- Thanh đầu trang thương hiệu & chuyển chế độ -->
+    <header class="panel-glass px-4 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <!-- Biểu tượng khối Rubik 3D phát sáng vector -->
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-400/40 flex items-center justify-center shadow-[0_0_16px_rgba(52,211,153,0.3)]">
+            <svg class="w-6 h-6 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" />
+              <path d="M12 22V12M12 12L20.66 7M12 12L3.34 7" />
+              <path d="M7.67 4.5L16.33 9.5M7.67 19.5L16.33 14.5" stroke-opacity="0.65" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-brand text-xl sm:text-2xl font-bold tracking-wider neon-title">Q&amp;A RUBIK</span>
+              <span class="text-[11px] font-mono-num px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-400/30">3D WCA</span>
+            </div>
+            <p class="text-xs text-slate-400">Website chính: 119 công thức CFOP &amp; Timer • Khu vực mở rộng: Rubik 3D tương tác</p>
+          </div>
+        </div>
+        <a href="index.html" class="btn-ghost px-3 py-1.5 text-xs font-semibold whitespace-nowrap">
+          ← Về trang chính
+        </a>
+      </div>
+
+      <!-- 3 Chế độ chính -->
+      <nav aria-label="Chế độ luyện tập" class="grid grid-cols-3 gap-1.5 bg-slate-950/70 p-1.5 rounded-xl border border-slate-800">
+        <button id="tab-player" type="button" class="mode-tab active px-2.5 sm:px-4 py-2 text-xs sm:text-sm flex items-center justify-center gap-1.5">
+          <span>1. Chơi &amp; Công Thức</span>
+        </button>
+        <button id="tab-drill" type="button" class="mode-tab px-2.5 sm:px-4 py-2 text-xs sm:text-sm flex items-center justify-center gap-1.5">
+          <span>2. Đố Nhận Diện</span>
+        </button>
+        <button id="tab-timer" type="button" class="mode-tab px-2.5 sm:px-4 py-2 text-xs sm:text-sm flex items-center justify-center gap-1.5">
+          <span>3. Giải Nhanh &amp; Timer</span>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Khung thông báo trạng thái (thay thế alert) -->
+    <div id="toast-banner" class="hidden panel-glass px-4 py-2.5 text-xs sm:text-sm text-emerald-200 border-emerald-400/40 flex items-center justify-between">
+      <span id="toast-text"></span>
+      <button id="toast-close" type="button" class="text-slate-400 hover:text-white ml-3 px-1.5">✕</button>
+    </div>
+
+    <!-- Thông báo nổi bật khi chuyển sang khu vực mở rộng Rubik 3D -->
+    <div id="mode-3d-notice" role="status" aria-live="polite" class="addon-badge rounded-2xl px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs sm:text-sm">
+      <div class="flex items-start sm:items-center gap-2.5">
+        <span class="mt-0.5 sm:mt-0 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-400/20 text-emerald-300 font-mono-num font-bold">3D</span>
+        <div>
+          <strong class="font-brand text-emerald-200 tracking-wide">Bạn đang chuyển sang khu vực mở rộng: RUBIK 3D</strong>
+          <p class="text-xs text-slate-300/90 mt-0.5">
+            Khu vực này tách riêng khỏi phần chính của website (119 công thức &amp; bấm giờ chuẩn). Mọi thao tác vuốt 3D chỉ áp dụng tại đây.
+          </p>
+        </div>
+      </div>
+      <span id="current-submode-pill" class="self-start sm:self-center text-[11px] font-mono-num px-2.5 py-1 rounded-full bg-slate-950/75 text-emerald-300 border border-emerald-400/35 whitespace-nowrap">
+        Chế độ: Chơi &amp; Công Thức
+      </span>
+    </div>
+
+    <!-- Khu vực tách riêng & nổi bật dành cho RUBIK 3D -->
+    <section aria-label="Khu vực mở rộng Rubik 3D" class="addon-studio-shell p-3.5 sm:p-5 flex flex-col gap-3 flex-1">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-emerald-400/20">
+        <div class="flex items-center gap-2.5">
+          <span class="text-[11px] font-mono-num uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-400 text-slate-950 font-bold">
+            Khu vực riêng • Rubik 3D
+          </span>
+          <span class="text-xs text-slate-300">Tách biệt hoàn toàn khỏi luồng tra cứu &amp; bấm giờ chính</span>
+        </div>
+        <span class="text-[11px] text-emerald-300/90 font-medium">Vuốt trực tiếp trên mặt khối để xoay</span>
+      </div>
+
+      <!-- Bố cục chính: Khối 3D bên trái + Bảng chức năng bên phải -->
+      <main class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 items-start">
+        <!-- Cột trái: Khối Rubik 3D & điều khiển xoay cơ bản -->
+        <section class="lg:col-span-7 panel-glass p-3.5 sm:p-4 flex flex-col gap-3 border-emerald-400/30">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span id="status-badge" class="text-xs font-mono-num px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-400/30">
+                Khối hoàn chỉnh
+              </span>
+              <span id="move-counter" class="text-xs font-mono-num text-slate-400">
+                0 nước
+              </span>
+            </div>
+            <button id="reset-camera-btn" type="button" class="btn-ghost px-2.5 py-1 text-xs font-medium">
+              Đặt lại góc nhìn
+            </button>
+          </div>
+
+          <!-- Khung hiển thị khối Rubik 3D -->
+          <div id="cube-viewport" aria-label="Khối Rubik 3D tương tác bằng thao tác vuốt"></div>
+
+          <!-- Nút thao tác nhanh cho khối -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button id="btn-scramble" type="button" class="btn-ghost py-2 px-3 text-xs font-semibold">
+              Trộn WCA
+            </button>
+            <button id="btn-reset-cube" type="button" class="btn-ghost py-2 px-3 text-xs font-semibold">
+              Đặt lại khối
+            </button>
+            <button id="btn-reverse-history" type="button" class="btn-ghost py-2 px-3 text-xs font-semibold">
+              Hoàn tác bước
+            </button>
+            <button id="btn-toggle-inv" type="button" class="btn-ghost py-2 px-3 text-xs font-semibold">
+              Chiều xoay: <span id="inv-mode-label" class="font-mono-num text-emerald-300">Thuận</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Cột phải: Bảng điều khiển theo từng chế độ -->
+        <section class="lg:col-span-5 flex flex-col gap-4">
+        <!-- CHẾ ĐỘ 1: CHƠI & MÔ PHỎNG CÔNG THỨC CFOP -->
+        <div id="panel-player" class="panel-glass p-4 sm:p-5 flex flex-col gap-4">
+          <div>
+            <h3 class="font-brand text-lg font-bold text-emerald-300">Chạy Minh Họa Công Thức CFOP</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Chọn công thức mẫu hoặc tự nhập dãy nước xoay để xem khối 3D chuyển động từng bước.</p>
+          </div>
+
+          <!-- Chọn nhanh công thức CFOP -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Công thức mẫu nhanh</label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5" id="preset-list"></div>
+          </div>
+
+          <!-- Ô nhập thuật toán tùy chỉnh -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="alg-input" class="text-xs font-semibold text-slate-300">Chuỗi công thức (WCA)</label>
+              <span id="alg-name-badge" class="text-xs font-mono-num text-emerald-300">Tùy chỉnh</span>
+            </div>
+            <input
+              id="alg-input"
+              type="text"
+              value="R U R' U' R' F R2 U' R' U' R U R' F'"
+              placeholder="Ví dụ: R U R' U' hoặc F R U R' U' F'"
+              class="w-full rounded-xl bg-slate-950/90 border border-slate-700/80 focus:border-emerald-400 focus:outline-none px-3.5 py-2.5 text-sm font-mono-num text-emerald-200 placeholder:text-slate-600"
+            />
+          </div>
+
+          <!-- Hiển thị từng bước của công thức -->
+          <div class="bg-slate-950/75 border border-slate-800 rounded-xl p-3">
+            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+              <span>Tiến trình bước xoay</span>
+              <span id="step-progress-text" class="font-mono-num text-emerald-300">0 / 0</span>
+            </div>
+            <div id="alg-tokens-box" class="flex flex-wrap gap-1.5 min-h-[34px]"></div>
+          </div>
+
+          <!-- Tốc độ phát & nút điều khiển phát -->
+          <div class="flex items-center justify-between gap-3 bg-slate-950/55 px-3 py-2 rounded-xl border border-slate-800/80">
+            <label for="speed-range" class="text-xs text-slate-300 whitespace-nowrap">Tốc độ chạy:</label>
+            <input id="speed-range" type="range" min="150" max="900" step="50" value="420" class="w-full accent-emerald-400 cursor-pointer" />
+            <span id="speed-label" class="text-xs font-mono-num text-emerald-300 whitespace-nowrap">0.42s</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button id="btn-play-pause" type="button" class="btn-neon py-2.5 px-3 text-xs sm:text-sm">
+              Chạy
+            </button>
+            <button id="btn-step-once" type="button" class="btn-ghost py-2.5 px-3 text-xs sm:text-sm font-semibold">
+              Từng bước
+            </button>
+            <button id="btn-setup-case" type="button" class="btn-ghost py-2.5 px-3 text-xs sm:text-sm font-semibold">
+              Áp dụng case
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Mẹo: Bấm <strong class="text-slate-200">Áp dụng case</strong> để đưa khối về trạng thái trước khi giải công thức, sau đó bấm <strong class="text-slate-200">Chạy</strong> để quan sát cách công thức đưa khối về hoàn chỉnh.
+          </p>
+        </div>
+
+        <!-- CHẾ ĐỘ 2: ĐỐ NHẬN DIỆN CÔNG THỨC & LUYỆN PHẢN XẠ -->
+        <div id="panel-drill" class="hidden panel-glass p-4 sm:p-5 flex flex-col gap-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h3 class="font-brand text-lg font-bold text-emerald-300">Đố Nhận Diện Công Thức</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Nhìn trạng thái trên khối 3D và chọn đúng tên công thức CFOP.</p>
+            </div>
+            <div class="text-right font-mono-num">
+              <div class="text-xs text-slate-400">Chuỗi đúng</div>
+              <div id="drill-streak" class="text-lg font-bold text-emerald-300">0</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 bg-slate-950/70 p-3 rounded-xl border border-slate-800/80 text-xs">
+            <div>
+              <span class="text-slate-400">Điểm tích lũy:</span>
+              <span id="drill-score" class="font-mono-num font-bold text-slate-100 ml-1">0</span>
+            </div>
+            <div class="text-right">
+              <span class="text-slate-400">Phản xạ gần nhất:</span>
+              <span id="drill-reaction" class="font-mono-num font-bold text-emerald-300 ml-1">--</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-950/85 border border-emerald-400/25 rounded-xl p-3.5">
+            <div class="text-[11px] uppercase tracking-wider text-emerald-400/80 font-semibold mb-1">Câu hỏi hiện tại</div>
+            <div id="drill-prompt" class="text-sm font-semibold text-slate-100">
+              Bấm "Câu hỏi mới" để khối 3D tạo một tình huống CFOP.
+            </div>
+            <div id="drill-feedback" class="mt-2 text-xs font-medium min-h-[18px]"></div>
+          </div>
+
+          <div id="drill-options" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+
+          <div class="flex gap-2">
+            <button id="btn-next-drill" type="button" class="btn-neon flex-1 py-2.5 px-4 text-xs sm:text-sm">
+              Câu hỏi mới
+            </button>
+            <button id="btn-reveal-alg" type="button" class="btn-ghost py-2.5 px-3.5 text-xs sm:text-sm font-semibold">
+              Xem công thức
+            </button>
+          </div>
+        </div>
+
+        <!-- CHẾ ĐỘ 3: THỬ THÁCH GIẢI NHANH & ĐỒNG HỒ BẤM GIỜ -->
+        <div id="panel-timer" class="hidden panel-glass p-4 sm:p-5 flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-brand text-lg font-bold text-emerald-300">Đồng Hồ Bấm Giờ &amp; Lưu Lịch Sử</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Bấm nút hoặc phím <strong class="text-slate-200">Enter</strong> để Bắt đầu / Dừng.</p>
+            </div>
+            <span class="text-[11px] font-mono-num px-2 py-1 rounded bg-slate-900 text-slate-400 border border-slate-800">localStorage</span>
+          </div>
+
+          <!-- Mặt đồng hồ -->
+          <div class="bg-slate-950/90 border border-emerald-400/25 rounded-2xl p-5 text-center shadow-inner">
+            <div id="timer-display" class="font-mono-num text-4xl sm:text-5xl font-bold text-emerald-300 tracking-tight drop-shadow-[0_0_16px_rgba(52,211,153,0.28)]">
+              00.00
+            </div>
+            <div id="timer-scramble-note" class="mt-2 text-xs font-mono-num text-slate-400 break-words">
+              Scramble: ---
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button id="btn-timer-start-stop" type="button" class="btn-neon col-span-2 py-2.5 px-4 text-sm">
+              Bắt đầu bấm giờ
+            </button>
+            <button id="btn-timer-scramble" type="button" class="btn-ghost py-2.5 px-3 text-xs sm:text-sm font-semibold">
+              Trộn mới
+            </button>
+          </div>
+
+          <!-- Thống kê Best & Ao5 -->
+          <div class="grid grid-cols-3 gap-2 text-center bg-slate-950/65 p-3 rounded-xl border border-slate-800/80">
+            <div>
+              <div class="text-[11px] text-slate-400">Số lượt</div>
+              <div id="stat-count" class="font-mono-num text-sm font-bold text-slate-100 mt-0.5">0</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">Kỷ lục (Best)</div>
+              <div id="stat-best" class="font-mono-num text-sm font-bold text-emerald-300 mt-0.5">--</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">Trung bình 5 (Ao5)</div>
+              <div id="stat-ao5" class="font-mono-num text-sm font-bold text-teal-300 mt-0.5">--</div>
+            </div>
+          </div>
+
+          <!-- Danh sách lượt giải -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-slate-300">Lịch sử lượt giải</span>
+              <div class="flex items-center gap-2">
+                <button id="btn-export-times" type="button" class="text-[11px] text-emerald-300 hover:underline">Xuất JSON</button>
+                <button id="btn-clear-times" type="button" class="text-[11px] text-rose-400 hover:underline">Xóa hết</button>
+              </div>
+            </div>
+            <div id="solves-list" class="custom-scroll max-h-44 overflow-y-auto space-y-1.5 pr-1">
+              <div class="text-xs text-slate-500 text-center py-4">Chưa có lượt giải nào được lưu.</div>
+            </div>
+          </div>
+        </div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <script>
+    // =========================================================================
+    // DỮ LIỆU CÔNG THỨC CFOP MẪU CHO MÔ PHỎNG & ĐỐ NHẬN DIỆN
+    // =========================================================================
+    const CFOP_CASES = [
+      {
+        id: "t-perm",
+        name: "T-Perm (PLL)",
+        group: "PLL • Hoán vị cạnh & góc",
+        alg: "R U R' U' R' F R2 U' R' U' R U R' F'",
+        hint: "Hoán đổi 2 góc bên phải và 2 cạnh đối diện (trên - dưới)."
+      },
+      {
+        id: "y-perm",
+        name: "Y-Perm (PLL)",
+        group: "PLL • Hoán vị chéo",
+        alg: "F R U' R' U' R U R' F' R U R' U' R' F R F'",
+        hint: "Đổi chéo 2 góc và 2 cạnh, rất quen thuộc khi luyện PLL."
+      },
+      {
+        id: "jb-perm",
+        name: "Jb-Perm (PLL)",
+        group: "PLL • Khối góc-cạnh liền kề",
+        alg: "R U R' F' R U R' U' R' F R2 U' R' U'",
+        hint: "Ghép sẵn một cặp góc-cạnh bên phải rồi giải gọn."
+      },
+      {
+        id: "sune",
+        name: "Sune (OLL 27)",
+        group: "OLL • Định hướng mặt trên (OCLL)",
+        alg: "R U R' U R U2 R'",
+        hint: "Công thức kinh điển đưa 1 góc vàng lên mặt trên."
+      },
+      {
+        id: "anti-sune",
+        name: "Anti-Sune (OLL 26)",
+        group: "OLL • Định hướng mặt trên (OCLL)",
+        alg: "R U2 R' U' R U' R'",
+        hint: "Bản đối xứng của Sune, xoay ngược nhịp U."
+      },
+      {
+        id: "sexy-move",
+        name: "Sexy Move (F2L cơ bản)",
+        group: "F2L / Trigger • Nhịp nền tảng",
+        alg: "R U R' U'",
+        hint: "Nhịp 4 bước cơ bản nhất trong speedcubing."
+      },
+      {
+        id: "sledgehammer",
+        name: "Sledgehammer (F2L / Edge)",
+        group: "F2L / Trigger • Tách cặp nhanh",
+        alg: "R' F R F'",
+        hint: "Dùng để tách cặp F2L hoặc lật cạnh nhanh gọn."
+      },
+      {
+        id: "h-perm",
+        name: "H-Perm (PLL)",
+        group: "PLL • Đảo 2 cặp cạnh đối diện",
+        alg: "M2 U M2 U2 M2 U M2",
+        hint: "Đảo 2 cặp cạnh đối nhau trên tầng U (mô phỏng bằng xoay mặt)."
+      }
+    ];
+
+    // Danh sách nước xoay cơ bản hỗ trợ đầy đủ cả tầng ngoài (U, D, L, R, F, B) và tầng giữa (M, E, S)
+    const FACES = ["U", "D", "L", "R", "F", "B", "M", "E", "S"];
+    const MODIFIERS = ["", "'", "2"];
+    const STORAGE_KEY = "qa_rubik_3d_solves_v1";
+
+    // =========================================================================
+    // TIỆN ÍCH THÔNG BÁO & PHÂN TÍCH THUẬT TOÁN
+    // =========================================================================
+    const toastBanner = document.getElementById("toast-banner");
+    const toastText = document.getElementById("toast-text");
+    const toastClose = document.getElementById("toast-close");
+    let toastTimer = null;
+
+    function showToast(msg, isError = false) {
+      toastText.textContent = msg;
+      toastBanner.classList.remove("hidden");
+      toastBanner.classList.toggle("border-rose-400/50", isError);
+      toastBanner.classList.toggle("text-rose-200", isError);
+      toastBanner.classList.toggle("border-emerald-400/40", !isError);
+      toastBanner.classList.toggle("text-emerald-200", !isError);
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toastBanner.classList.add("hidden");
+      }, 3600);
+    }
+
+    toastClose.addEventListener("click", () => toastBanner.classList.add("hidden"));
+
+    /**
+     * Phân tích chuỗi thuật toán thành mảng các nước xoay hợp lệ (U, D, L, R, F, B + ' hoặc 2).
+     * Bỏ qua ký tự không hợp lệ hoặc tự quy đổi các bước phổ biến.
+     */
+    function parseAlgorithm(raw) {
+      if (!raw || typeof raw !== "string") return [];
+      const cleaned = raw
+        .replace(/[’`]/g, "'")
+        .replace(/[()[\],]/g, " ")
+        .trim();
+      if (!cleaned) return [];
+
+      const tokens = cleaned.split(/\s+/);
+      const validMoves = [];
+
+      for (const tok of tokens) {
+        const match = tok.match(/^([UDLRFBMES])(['2])?$/i);
+        if (match) {
+          const face = match[1].toUpperCase();
+          const mod = match[2] || "";
+          validMoves.push(face + mod);
+        }
+      }
+      return validMoves;
+    }
+
+    /**
+     * Đảo ngược một nước xoay đơn lẻ (dùng để đưa khối về trạng thái trước khi thực hiện công thức).
+     */
+    function invertMove(move) {
+      const face = move[0];
+      const mod = move.slice(1);
+      if (mod === "2") return face + "2";
+      if (mod === "'") return face;
+      return face + "'";
+    }
+
+    function invertAlgorithm(moves) {
+      return [...moves].reverse().map(invertMove);
+    }
+
+    function generateScramble(length = 18) {
+      const result = [];
+      let prevFace = "";
+      let prevPrevFace = "";
+      for (let i = 0; i < length; i++) {
+        let face;
+        do {
+          face = FACES[Math.floor(Math.random() * FACES.length)];
+        } while (face === prevFace || (face === prevPrevFace && areOppositeFaces(face, prevFace)));
+        const mod = MODIFIERS[Math.floor(Math.random() * MODIFIERS.length)];
+        result.push(face + mod);
+        prevPrevFace = prevFace;
+        prevFace = face;
+      }
+      return result;
+    }
+
+    function areOppositeFaces(a, b) {
+      const pairs = new Set(["UD", "DU", "LR", "RL", "FB", "BF", "MES", "SEM"]);
+      return pairs.has(a + b);
+    }
+
+    // =========================================================================
+    // KHỞI TẠO KHỐI RUBIK 3D BẰNG THREE.JS
+    // =========================================================================
+    const viewport = document.getElementById("cube-viewport");
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+    const defaultCamPos = new THREE.Vector3(4.6, 4.1, 5.2);
+    camera.position.copy(defaultCamPos);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    viewport.appendChild(renderer.domElement);
+
+    // Ánh sáng nổi bật các mặt và cạnh bo tròn của khối 3D
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.75);
+    dirLight1.position.set(6, 9, 7);
+    scene.add(dirLight1);
+
+    const dirLight2 = new THREE.DirectionalLight(0x34d399, 0.35);
+    dirLight2.position.set(-7, -4, -6);
+    scene.add(dirLight2);
+
+    // Nhóm gốc chứa toàn bộ 27 mảnh (cubies) để dễ xoay góc nhìn toàn khối
+    const rootGroup = new THREE.Group();
+    scene.add(rootGroup);
+
+    // Nhóm tạm dùng khi một lớp mặt đang quay mượt
+    const pivotGroup = new THREE.Group();
+    scene.add(pivotGroup);
+
+    // Bảng màu chuẩn WCA + viền nhựa đen bóng
+    const COLOR_MAP = {
+      U: 0xf8fafc, // Trắng (trên)
+      D: 0xfacc15, // Vàng (dưới)
+      R: 0xef4444, // Đỏ (phải)
+      L: 0xf97316, // Cam (trái)
+      F: 0x10b981, // Xanh lá ngọc (trước)
+      B: 0x3b82f6, // Xanh dương (sau)
+      INNER: 0x0f172a
+    };
+
+    const cubies = [];
+    const CUBIE_SIZE = 0.94;
+    const STEP = 1.0;
+
+    function createStickerTexture(hexColor) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext("2d");
+
+      // Nền nhựa tối bao quanh sticker
+      ctx.fillStyle = "#0b1120";
+      ctx.fillRect(0, 0, 128, 128);
+
+      // Sticker bo góc sắc nét
+      const pad = 12;
+      const r = 18;
+      const w = 128 - pad * 2;
+      const h = 128 - pad * 2;
+      ctx.fillStyle = "#" + hexColor.toString(16).padStart(6, "0");
+      ctx.beginPath();
+      ctx.moveTo(pad + r, pad);
+      ctx.arcTo(pad + w, pad, pad + w, pad + h, r);
+      ctx.arcTo(pad + w, pad + h, pad, pad + h, r);
+      ctx.arcTo(pad, pad + h, pad, pad, r);
+      ctx.arcTo(pad, pad, pad + w, pad, r);
+      ctx.closePath();
+      ctx.fill();
+
+      // Ánh sáng phản chiếu nhẹ ở mép trên sticker
+      const grad = ctx.createLinearGradient(0, pad, 0, pad + h);
+      grad.addColorStop(0, "rgba(255,255,255,0.28)");
+      grad.addColorStop(0.5, "rgba(255,255,255,0.03)");
+      grad.addColorStop(1, "rgba(0,0,0,0.16)");
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    const stickerMaterials = {
+      U: new THREE.MeshStandardMaterial({ map: createStickerTexture(COLOR_MAP.U), roughness: 0.35, metalness: 0.05 }),
+      D: new THREE.MeshStandardMaterial({ map: createStickerTexture(COLOR_MAP.D), roughness: 0.35, metalness: 0.05 }),
+      R: new THREE.MeshStandardMaterial({ map: createStickerTexture(COLOR_MAP.R), roughness: 0.35, metalness: 0.05 }),
+      L: new THREE.MeshStandardMaterial({ map: createStickerTexture(COLOR_MAP.L), roughness: 0.35, metalness: 0.05 }),
+      F: new THREE.MeshStandardMaterial({ map: createStickerTexture(COLOR_MAP.F), roughness: 0.35, metalness: 0.05 }),
+      B: new THREE.MeshStandardMaterial({ map: createStickerTexture(COLOR_MAP.B), roughness: 0.35, metalness: 0.05 }),
+      INNER: new THREE.MeshStandardMaterial({ color: COLOR_MAP.INNER, roughness: 0.6, metalness: 0.1 })
+    };
+
+    // Thứ tự mặt BoxGeometry: +x (R), -x (L), +y (U), -y (D), +z (F), -z (B)
+    const boxGeo = new THREE.BoxGeometry(CUBIE_SIZE, CUBIE_SIZE, CUBIE_SIZE);
+
+    function buildCube() {
+      // Xóa mảnh cũ nếu có
+      while (rootGroup.children.length > 0) {
+        rootGroup.remove(rootGroup.children[0]);
+      }
+      cubies.length = 0;
+
+      for (let x = -1; x <= 1; x++) {
+        for (let y = -1; y <= 1; y++) {
+          for (let z = -1; z <= 1; z++) {
+            const mats = [
+              x === 1 ? stickerMaterials.R : stickerMaterials.INNER,
+              x === -1 ? stickerMaterials.L : stickerMaterials.INNER,
+              y === 1 ? stickerMaterials.U : stickerMaterials.INNER,
+              y === -1 ? stickerMaterials.D : stickerMaterials.INNER,
+              z === 1 ? stickerMaterials.F : stickerMaterials.INNER,
+              z === -1 ? stickerMaterials.B : stickerMaterials.INNER
+            ];
+            const mesh = new THREE.Mesh(boxGeo, mats);
+            mesh.position.set(x * STEP, y * STEP, z * STEP);
+            rootGroup.add(mesh);
+            cubies.push(mesh);
+          }
+        }
+      }
+    }
+
+    buildCube();
+
+    // Điều chỉnh kích thước canvas theo vùng chứa
+    function resizeRenderer() {
+      const w = viewport.clientWidth || 320;
+      const h = viewport.clientHeight || 360;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+    }
+    window.addEventListener("resize", resizeRenderer);
+    resizeRenderer();
+
+    // =========================================================================
+    // HỆ THỐNG XOAY MẶT 3D (HỖ TRỢ XOAY TỨC THÌ & XOAY MƯỢT CÓ ANIMATION)
+    // =========================================================================
+    let isAnimatingMove = false;
+    let moveCount = 0;
+    let moveHistory = [];
+    let invertNextManualMove = false;
+
+    const moveCounterEl = document.getElementById("move-counter");
+    const statusBadgeEl = document.getElementById("status-badge");
+
+    function updateMoveCounter() {
+      moveCounterEl.textContent = `${moveCount} nước`;
+    }
+
+    function setStatusBadge(text) {
+      statusBadgeEl.textContent = text;
+    }
+
+    /**
+     * Trả về thông tin trục, lớp (-1, 0, 1) và góc quay chuẩn WCA / ký hiệu tầng giữa:
+     * Nhìn thẳng vào mặt đó theo chiều kim đồng hồ:
+     * - U (+y, layer 1): quay quanh +y góc -PI/2
+     * - D (-y, layer -1): quay quanh +y góc +PI/2
+     * - E (tầng giữa y, layer 0): cùng chiều quay với D (+PI/2 quanh +y)
+     * - R (+x, layer 1): quay quanh +x góc -PI/2
+     * - L (-x, layer -1): quay quanh +x góc +PI/2
+     * - M (tầng giữa x, layer 0): cùng chiều quay với L (+PI/2 quanh +x)
+     * - F (+z, layer 1): quay quanh +z góc -PI/2
+     * - B (-z, layer -1): quay quanh +z góc +PI/2
+     * - S (tầng giữa z, layer 0): cùng chiều quay với F (-PI/2 quanh +z)
+     */
+    function getMoveSpec(moveStr) {
+      const face = moveStr[0];
+      const mod = moveStr.slice(1);
+      let dirSign = 1;
+      if (mod === "'") dirSign = -1;
+      if (mod === "2") dirSign = 2;
+
+      switch (face) {
+        case "U":
+          return { axis: "y", layer: 1, angle: (-Math.PI / 2) * dirSign };
+        case "D":
+          return { axis: "y", layer: -1, angle: (Math.PI / 2) * dirSign };
+        case "E":
+          return { axis: "y", layer: 0, angle: (Math.PI / 2) * dirSign };
+        case "R":
+          return { axis: "x", layer: 1, angle: (-Math.PI / 2) * dirSign };
+        case "L":
+          return { axis: "x", layer: -1, angle: (Math.PI / 2) * dirSign };
+        case "M":
+          return { axis: "x", layer: 0, angle: (Math.PI / 2) * dirSign };
+        case "F":
+          return { axis: "z", layer: 1, angle: (-Math.PI / 2) * dirSign };
+        case "B":
+          return { axis: "z", layer: -1, angle: (Math.PI / 2) * dirSign };
+        case "S":
+          return { axis: "z", layer: 0, angle: (-Math.PI / 2) * dirSign };
+        default:
+          return null;
+      }
+    }
+
+    function snapCoord(val) {
+      return Math.round(val / STEP) * STEP;
+    }
+
+    function executeMoveInstant(moveStr, recordHistory = true) {
+      const spec = getMoveSpec(moveStr);
+      if (!spec) return;
+
+      const selected = cubies.filter((c) => Math.round(c.position[spec.axis] / STEP) === spec.layer);
+      pivotGroup.rotation.set(0, 0, 0);
+      pivotGroup.position.set(0, 0, 0);
+      rootGroup.add(pivotGroup);
+
+      selected.forEach((c) => {
+        pivotGroup.attach(c);
+      });
+
+      pivotGroup.rotation[spec.axis] = spec.angle;
+      pivotGroup.updateMatrixWorld();
+
+      selected.forEach((c) => {
+        rootGroup.attach(c);
+        c.position.set(snapCoord(c.position.x), snapCoord(c.position.y), snapCoord(c.position.z));
+        // Làm tròn góc xoay về bội số của PI/2 để tránh trôi số thực
+        const stepAngle = Math.PI / 2;
+        c.rotation.x = Math.round(c.rotation.x / stepAngle) * stepAngle;
+        c.rotation.y = Math.round(c.rotation.y / stepAngle) * stepAngle;
+        c.rotation.z = Math.round(c.rotation.z / stepAngle) * stepAngle;
+        c.updateMatrix();
+      });
+
+      rootGroup.remove(pivotGroup);
+
+      if (recordHistory) {
+        moveCount += 1;
+        moveHistory.push(moveStr);
+        updateMoveCounter();
+      }
+    }
+
+    function executeMoveAnimated(moveStr, durationMs = 240, recordHistory = true) {
+      return new Promise((resolve) => {
+        const spec = getMoveSpec(moveStr);
+        if (!spec) {
+          resolve();
+          return;
+        }
+
+        isAnimatingMove = true;
+        const selected = cubies.filter((c) => Math.round(c.position[spec.axis] / STEP) === spec.layer);
+        pivotGroup.rotation.set(0, 0, 0);
+        pivotGroup.position.set(0, 0, 0);
+        rootGroup.add(pivotGroup);
+
+        selected.forEach((c) => {
+          pivotGroup.attach(c);
+        });
+
+        const startTime = performance.now();
+        const targetAngle = spec.angle;
+
+        function stepAnim(now) {
+          const elapsed = now - startTime;
+          const t = Math.min(1, elapsed / durationMs);
+          // Ease-out cubic giúp đầu xoay dứt khoát, cuối xoay êm
+          const eased = 1 - Math.pow(1 - t, 3);
+          pivotGroup.rotation[spec.axis] = targetAngle * eased;
+
+          if (t < 1) {
+            requestAnimationFrame(stepAnim);
+          } else {
+            pivotGroup.rotation[spec.axis] = targetAngle;
+            pivotGroup.updateMatrixWorld();
+
+            selected.forEach((c) => {
+              rootGroup.attach(c);
+              c.position.set(snapCoord(c.position.x), snapCoord(c.position.y), snapCoord(c.position.z));
+              const stepAngle = Math.PI / 2;
+              c.rotation.x = Math.round(c.rotation.x / stepAngle) * stepAngle;
+              c.rotation.y = Math.round(c.rotation.y / stepAngle) * stepAngle;
+              c.rotation.z = Math.round(c.rotation.z / stepAngle) * stepAngle;
+              c.updateMatrix();
+            });
+
+            rootGroup.remove(pivotGroup);
+            isAnimatingMove = false;
+
+            if (recordHistory) {
+              moveCount += 1;
+              moveHistory.push(moveStr);
+              updateMoveCounter();
+            }
+            resolve();
+          }
+        }
+
+        requestAnimationFrame(stepAnim);
+      });
+    }
+
+    // =========================================================================
+    // VUỐT / KÉO TRỰC TIẾP TRÊN MẶT KHỐI 3D (CHUỘT & CẢM ỨNG) HOẶC XOAY GÓC NHÌN
+    // =========================================================================
+    const raycaster = new THREE.Raycaster();
+    const pointerNDC = new THREE.Vector2();
+
+    let dragState = {
+      active: false,
+      mode: "orbit", // "orbit" | "turn"
+      startX: 0,
+      startY: 0,
+      lastX: 0,
+      lastY: 0,
+      hitCubie: null,
+      hitWorldNormal: null,
+      hitWorldPoint: null,
+      committedMove: false
+    };
+
+    function getPointerNDC(clientX, clientY) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointerNDC.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      pointerNDC.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    }
+
+    function projectWorldVecToScreenDir(worldOrigin, worldDir) {
+      const p0 = worldOrigin.clone().project(camera);
+      const p1 = worldOrigin.clone().add(worldDir).project(camera);
+      const rect = renderer.domElement.getBoundingClientRect();
+      const dx = (p1.x - p0.x) * (rect.width * 0.5);
+      const dy = -(p1.y - p0.y) * (rect.height * 0.5);
+      const len = Math.hypot(dx, dy) || 1;
+      return { x: dx / len, y: dy / len };
+    }
+
+    /**
+     * Tìm nước xoay tầng (U, D, L, R, F, B, M, E, S) khớp nhất với hướng vuốt trên mặt khối.
+     */
+    function resolveSwipeMove(cubie, faceNormalWorld, hitPointWorld, swipeDx, swipeDy) {
+      const swipeLen = Math.hypot(swipeDx, swipeDy);
+      if (swipeLen < 18) return null;
+
+      const sx = swipeDx / swipeLen;
+      const sy = swipeDy / swipeLen;
+
+      // Xác định trục mặt bị chạm trong hệ tọa độ nội bộ của rootGroup
+      const invRootQuat = rootGroup.quaternion.clone().invert();
+      const localNormal = faceNormalWorld.clone().applyQuaternion(invRootQuat);
+      const absNx = Math.abs(localNormal.x);
+      const absNy = Math.abs(localNormal.y);
+      const absNz = Math.abs(localNormal.z);
+
+      let faceAxis = "z";
+      if (absNx > absNy && absNx > absNz) faceAxis = "x";
+      else if (absNy > absNx && absNy > absNz) faceAxis = "y";
+
+      const candidateAxes = ["x", "y", "z"].filter((ax) => ax !== faceAxis);
+      const localPos = cubie.position.clone();
+      const rootQuat = rootGroup.quaternion.clone();
+
+      let bestMatch = null;
+      let bestScore = 0.35; // Ngưỡng thẳng hàng tối thiểu để tránh nhận nhầm chéo
+
+      for (const rotAxis of candidateAxes) {
+        const layerVal = Math.round(localPos[rotAxis] / STEP);
+        const axisVecLocal = new THREE.Vector3(
+          rotAxis === "x" ? 1 : 0,
+          rotAxis === "y" ? 1 : 0,
+          rotAxis === "z" ? 1 : 0
+        );
+
+        // Chiều dương của góc quay quanh rotAxis làm điểm hitPointWorld dịch chuyển theo vector tiếp tuyến:
+        // d(p)/d(theta) = axisVec x (p - centerOnAxis)
+        const centerOnAxis = new THREE.Vector3(
+          rotAxis === "x" ? 0 : localPos.x,
+          rotAxis === "y" ? 0 : localPos.y,
+          rotAxis === "z" ? 0 : localPos.z
+        );
+        const radiusLocal = localPos.clone().sub(centerOnAxis);
+        const tangentLocal = new THREE.Vector3().crossVectors(axisVecLocal, radiusLocal);
+        if (tangentLocal.lengthSq() < 1e-4) {
+          // Nếu chạm ngay tâm tầng giữa, dùng tích có hướng của trục quay và pháp tuyến mặt
+          tangentLocal.crossVectors(axisVecLocal, localNormal);
+        }
+        tangentLocal.normalize();
+
+        const tangentWorld = tangentLocal.applyQuaternion(rootQuat).normalize();
+        const screenDir = projectWorldVecToScreenDir(hitPointWorld, tangentWorld);
+        const alignment = sx * screenDir.x + sy * screenDir.y;
+
+        if (Math.abs(alignment) > bestScore) {
+          bestScore = Math.abs(alignment);
+          // Nếu alignment > 0 nghĩa là vuốt theo chiều +theta quanh rotAxis; ngược lại là -theta
+          const angleDir = alignment > 0 ? 1 : -1;
+          const notation = mapAxisLayerAngleToNotation(rotAxis, layerVal, angleDir);
+          if (notation) {
+            bestMatch = notation;
+          }
+        }
+      }
+
+      return bestMatch;
+    }
+
+    function mapAxisLayerAngleToNotation(axis, layer, angleDir) {
+      // Quy ước góc dương quanh trục +x, +y, +z theo quy tắc bàn tay phải:
+      // - Quanh +y: góc âm là U (layer 1), góc dương là D (layer -1) hoặc E (layer 0)
+      // - Quanh +x: góc âm là R (layer 1), góc dương là L (layer -1) hoặc M (layer 0)
+      // - Quanh +z: góc âm là F (layer 1) hoặc S (layer 0), góc dương là B (layer -1)
+      if (axis === "y") {
+        if (layer === 1) return angleDir < 0 ? "U" : "U'";
+        if (layer === -1) return angleDir > 0 ? "D" : "D'";
+        return angleDir > 0 ? "E" : "E'";
+      }
+      if (axis === "x") {
+        if (layer === 1) return angleDir < 0 ? "R" : "R'";
+        if (layer === -1) return angleDir > 0 ? "L" : "L'";
+        return angleDir > 0 ? "M" : "M'";
+      }
+      if (axis === "z") {
+        if (layer === 1) return angleDir < 0 ? "F" : "F'";
+        if (layer === -1) return angleDir > 0 ? "B" : "B'";
+        return angleDir < 0 ? "S" : "S'";
+      }
+      return null;
+    }
+
+    renderer.domElement.addEventListener("pointerdown", (e) => {
+      if (isAnimatingMove) return;
+      getPointerNDC(e.clientX, e.clientY);
+      raycaster.setFromCamera(pointerNDC, camera);
+      const hits = raycaster.intersectObjects(cubies, false);
+
+      dragState.active = true;
+      dragState.startX = e.clientX;
+      dragState.startY = e.clientY;
+      dragState.lastX = e.clientX;
+      dragState.lastY = e.clientY;
+      dragState.committedMove = false;
+
+      if (hits.length > 0) {
+        const hit = hits[0];
+        dragState.mode = "turn";
+        dragState.hitCubie = hit.object;
+        dragState.hitWorldNormal = hit.face ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld).normalize() : new THREE.Vector3(0, 0, 1);
+        dragState.hitWorldPoint = hit.point.clone();
+      } else {
+        dragState.mode = "orbit";
+        dragState.hitCubie = null;
+      }
+    });
+
+    window.addEventListener("pointermove", (e) => {
+      if (!dragState.active) return;
+
+      if (dragState.mode === "orbit") {
+        const dx = e.clientX - dragState.lastX;
+        const dy = e.clientY - dragState.lastY;
+        dragState.lastX = e.clientX;
+        dragState.lastY = e.clientY;
+
+        rootGroup.rotation.y += dx * 0.0085;
+        rootGroup.rotation.x += dy * 0.0085;
+        return;
+      }
+
+      if (dragState.mode === "turn" && !dragState.committedMove && !isAnimatingMove && dragState.hitCubie) {
+        const totalDx = e.clientX - dragState.startX;
+        const totalDy = e.clientY - dragState.startY;
+        let move = resolveSwipeMove(
+          dragState.hitCubie,
+          dragState.hitWorldNormal,
+          dragState.hitWorldPoint,
+          totalDx,
+          totalDy
+        );
+
+        if (move) {
+          dragState.committedMove = true;
+          if (invertNextManualMove) {
+            move = invertMove(move);
+          }
+          setStatusBadge(`Vuốt: ${move}`);
+          executeMoveAnimated(move, 175, true);
+        }
+      }
+    });
+
+    window.addEventListener("pointerup", () => {
+      dragState.active = false;
+      dragState.hitCubie = null;
+      dragState.committedMove = false;
+    });
+
+    document.getElementById("reset-camera-btn").addEventListener("click", () => {
+      rootGroup.rotation.set(0.28, -0.45, 0);
+    });
+
+    // Đặt góc nhìn hơi nghiêng 3/4 dễ nhìn 3 mặt U, F, R ngay khi mở
+    rootGroup.rotation.set(0.28, -0.45, 0);
+
+    function resetCubeState() {
+      stopAlgorithmPlayback();
+      buildCube();
+      moveCount = 0;
+      moveHistory = [];
+      updateMoveCounter();
+      setStatusBadge("Khối hoàn chỉnh");
+    }
+
+    function applyScrambleToCube(moves) {
+      resetCubeState();
+      moves.forEach((m) => executeMoveInstant(m, true));
+      setStatusBadge(`Đã trộn (${moves.length} bước)`);
+    }
+
+    // Gắn sự kiện các nút xoay mặt trực tiếp
+    document.querySelectorAll(".move-chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (isAnimatingMove) return;
+        let move = btn.getAttribute("data-move");
+        if (invertNextManualMove) {
+          const face = move[0];
+          const mod = move.slice(1);
+          if (mod === "") move = face + "'";
+          else if (mod === "'") move = face;
+        }
+        executeMoveAnimated(move, 160, true);
+        setStatusBadge(`Xoay ${move}`);
+      });
+    });
+
+    document.getElementById("btn-scramble").addEventListener("click", () => {
+      if (isAnimatingMove) return;
+      const scr = generateScramble(18);
+      applyScrambleToCube(scr);
+      showToast(`Đã trộn chuẩn WCA: ${scr.join(" ")}`);
+    });
+
+    document.getElementById("btn-reset-cube").addEventListener("click", () => {
+      resetCubeState();
+      showToast("Đã đặt lại khối Rubik về trạng thái giải xong.");
+    });
+
+    document.getElementById("btn-reverse-history").addEventListener("click", () => {
+      if (isAnimatingMove || moveHistory.length === 0) return;
+      const last = moveHistory.pop();
+      moveCount = Math.max(0, moveCount - 1);
+      updateMoveCounter();
+      executeMoveAnimated(invertMove(last), 160, false);
+      setStatusBadge(`Hoàn tác ${last}`);
+    });
+
+    document.getElementById("btn-toggle-inv").addEventListener("click", () => {
+      invertNextManualMove = !invertNextManualMove;
+      document.getElementById("inv-mode-label").textContent = invertNextManualMove ? "Đảo (')" : "Thuận";
+    });
+
+    // Phím tắt bàn phím (bỏ qua khi đang gõ vào ô input)
+    window.addEventListener("keydown", (e) => {
+      const tag = document.activeElement ? document.activeElement.tagName : "";
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+
+      if (e.code === "Space") {
+        // Nếu đang ở chế độ Timer thì Space không trộn nhầm khi bấm nút, chỉ trộn khi ở chế độ 1
+        if (!document.getElementById("panel-player").classList.contains("hidden")) {
+          e.preventDefault();
+          if (!isAnimatingMove) {
+            const scr = generateScramble(18);
+            applyScrambleToCube(scr);
+            setStatusBadge("Đã trộn (Space)");
+          }
+        }
+        return;
+      }
+
+      if (e.code === "Enter" && !document.getElementById("panel-timer").classList.contains("hidden")) {
+        e.preventDefault();
+        toggleTimerRunning();
+        return;
+      }
+
+      const key = e.key.toUpperCase();
+      if (FACES.includes(key) && !isAnimatingMove) {
+        const move = e.shiftKey ? key + "'" : key;
+        executeMoveAnimated(move, 150, true);
+        setStatusBadge(`Phím ${move}`);
+      }
+    });
+
+    // =========================================================================
+    // CHUYỂN ĐỔI 3 CHẾ ĐỘ TRÊN GIAO DIỆN
+    // =========================================================================
+    const tabs = {
+      player: { btn: document.getElementById("tab-player"), panel: document.getElementById("panel-player") },
+      drill: { btn: document.getElementById("tab-drill"), panel: document.getElementById("panel-drill") },
+      timer: { btn: document.getElementById("tab-timer"), panel: document.getElementById("panel-timer") }
+    };
+
+    function switchMode(modeKey) {
+      stopAlgorithmPlayback();
+      const modeLabels = {
+        player: "Chơi & Công Thức",
+        drill: "Đố Nhận Diện",
+        timer: "Giải Nhanh & Timer"
+      };
+
+      Object.entries(tabs).forEach(([key, obj]) => {
+        const active = key === modeKey;
+        obj.btn.classList.toggle("active", active);
+        obj.panel.classList.toggle("hidden", !active);
+      });
+
+      const submodePill = document.getElementById("current-submode-pill");
+      if (submodePill) {
+        submodePill.textContent = `Chế độ: ${modeLabels[modeKey] || "Rubik 3D"}`;
+      }
+
+      const noticeEl = document.getElementById("mode-3d-notice");
+      if (noticeEl) {
+        noticeEl.classList.remove("ring-2", "ring-emerald-300/70");
+        void noticeEl.offsetWidth;
+        noticeEl.classList.add("ring-2", "ring-emerald-300/70");
+        setTimeout(() => noticeEl.classList.remove("ring-2", "ring-emerald-300/70"), 750);
+      }
+
+      showToast(`Đã chuyển sang khu vực mở rộng Rubik 3D (${modeLabels[modeKey] || modeKey}) — tách biệt với trang chính.`);
+
+      if (modeKey === "drill" && !currentDrillCase) {
+        startNextDrillQuestion();
+      } else if (modeKey === "timer" && !currentTimerScramble.length) {
+        prepareNewTimerScramble();
+      }
+    }
+
+    tabs.player.btn.addEventListener("click", () => switchMode("player"));
+    tabs.drill.btn.addEventListener("click", () => switchMode("drill"));
+    tabs.timer.btn.addEventListener("click", () => switchMode("timer"));
+
+    // =========================================================================
+    // CHẾ ĐỘ 1: TRÌNH CHẠY MINH HỌA CÔNG THỨC CFOP
+    // =========================================================================
+    const presetListEl = document.getElementById("preset-list");
+    const algInputEl = document.getElementById("alg-input");
+    const algNameBadgeEl = document.getElementById("alg-name-badge");
+    const algTokensBoxEl = document.getElementById("alg-tokens-box");
+    const stepProgressTextEl = document.getElementById("step-progress-text");
+    const speedRangeEl = document.getElementById("speed-range");
+    const speedLabelEl = document.getElementById("speed-label");
+    const btnPlayPauseEl = document.getElementById("btn-play-pause");
+
+    let currentAlgMoves = [];
+    let currentStepIndex = 0;
+    let isPlayingAlg = false;
+    let playTimerId = null;
+
+    function renderPresetButtons() {
+      CFOP_CASES.forEach((c, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn-ghost px-2.5 py-1.5 text-xs font-semibold text-left truncate";
+        btn.textContent = c.name.split(" (")[0];
+        btn.title = `${c.name}: ${c.alg}`;
+        btn.addEventListener("click", () => {
+          stopAlgorithmPlayback();
+          algInputEl.value = c.alg;
+          algNameBadgeEl.textContent = c.name;
+          loadAlgorithmFromInput(true);
+          showToast(`${c.name} — ${c.hint}`);
+        });
+        presetListEl.appendChild(btn);
+        if (idx === 0) {
+          algNameBadgeEl.textContent = c.name;
+        }
+      });
+    }
+
+    function renderAlgTokens() {
+      algTokensBoxEl.innerHTML = "";
+      stepProgressTextEl.textContent = `${currentStepIndex} / ${currentAlgMoves.length}`;
+
+      if (!currentAlgMoves.length) {
+        algTokensBoxEl.innerHTML = `<span class="text-xs text-slate-500">Nhập công thức hợp lệ (U, D, L, R, F, B, ', 2)</span>`;
+        return;
+      }
+
+      currentAlgMoves.forEach((mv, i) => {
+        const span = document.createElement("span");
+        span.textContent = mv;
+        span.className = "font-mono-num text-xs px-2 py-1 rounded-md border ";
+        if (i < currentStepIndex) {
+          span.className += "bg-emerald-500/20 border-emerald-400/50 text-emerald-200 line-through opacity-75";
+        } else if (i === currentStepIndex) {
+          span.className += "bg-emerald-400 text-slate-950 border-emerald-300 font-bold shadow-[0_0_10px_rgba(52,211,153,0.5)]";
+        } else {
+          span.className += "bg-slate-900 border-slate-700 text-slate-300";
+        }
+        algTokensBoxEl.appendChild(span);
+      });
+    }
+
+    function loadAlgorithmFromInput(setupInverseFirst = false) {
+      currentAlgMoves = parseAlgorithm(algInputEl.value);
+      currentStepIndex = 0;
+
+      if (setupInverseFirst && currentAlgMoves.length > 0) {
+        resetCubeState();
+        const setupMoves = invertAlgorithm(currentAlgMoves);
+        setupMoves.forEach((m) => executeMoveInstant(m, false));
+        setStatusBadge("Đã tạo trạng thái case");
+      }
+
+      renderAlgTokens();
+    }
+
+    function stopAlgorithmPlayback() {
+      isPlayingAlg = false;
+      clearTimeout(playTimerId);
+      btnPlayPauseEl.textContent = "Chạy";
+    }
+
+    async function runNextAlgStep() {
+      if (!isPlayingAlg) return;
+      if (currentStepIndex >= currentAlgMoves.length) {
+        stopAlgorithmPlayback();
+        setStatusBadge("Hoàn tất công thức");
+        showToast("Đã chạy xong toàn bộ chuỗi công thức!");
+        return;
+      }
+
+      const move = currentAlgMoves[currentStepIndex];
+      const duration = Math.max(110, Number(speedRangeEl.value) * 0.62);
+      await executeMoveAnimated(move, duration, true);
+      currentStepIndex += 1;
+      renderAlgTokens();
+      setStatusBadge(`Bước ${currentStepIndex}: ${move}`);
+
+      if (isPlayingAlg) {
+        const pauseBetween = Math.max(60, Number(speedRangeEl.value) * 0.38);
+        playTimerId = setTimeout(runNextAlgStep, pauseBetween);
+      }
+    }
+
+    btnPlayPauseEl.addEventListener("click", () => {
+      if (isPlayingAlg) {
+        stopAlgorithmPlayback();
+        setStatusBadge("Tạm dừng");
+        return;
+      }
+
+      if (!currentAlgMoves.length) {
+        loadAlgorithmFromInput(false);
+      }
+      if (!currentAlgMoves.length) {
+        showToast("Vui lòng nhập công thức hợp lệ (ví dụ: R U R' U').", true);
+        return;
+      }
+
+      if (currentStepIndex >= currentAlgMoves.length) {
+        currentStepIndex = 0;
+        renderAlgTokens();
+      }
+
+      isPlayingAlg = true;
+      btnPlayPauseEl.textContent = "Tạm dừng";
+      runNextAlgStep();
+    });
+
+    document.getElementById("btn-step-once").addEventListener("click", async () => {
+      if (isAnimatingMove || isPlayingAlg) return;
+      if (!currentAlgMoves.length) {
+        loadAlgorithmFromInput(false);
+      }
+      if (currentStepIndex >= currentAlgMoves.length) {
+        showToast("Đã đến cuối công thức. Bấm 'Áp dụng case' để chạy lại từ đầu.");
+        return;
+      }
+      const move = currentAlgMoves[currentStepIndex];
+      await executeMoveAnimated(move, 220, true);
+      currentStepIndex += 1;
+      renderAlgTokens();
+      setStatusBadge(`Từng bước: ${move}`);
+    });
+
+    document.getElementById("btn-setup-case").addEventListener("click", () => {
+      stopAlgorithmPlayback();
+      algNameBadgeEl.textContent = algNameBadgeEl.textContent || "Công thức";
+      loadAlgorithmFromInput(true);
+      showToast("Đã áp dụng trạng thái ngược của công thức lên khối 3D.");
+    });
+
+    algInputEl.addEventListener("input", () => {
+      algNameBadgeEl.textContent = "Tùy chỉnh";
+      currentAlgMoves = parseAlgorithm(algInputEl.value);
+      currentStepIndex = 0;
+      renderAlgTokens();
+    });
+
+    speedRangeEl.addEventListener("input", () => {
+      const sec = (Number(speedRangeEl.value) / 1000).toFixed(2);
+      speedLabelEl.textContent = `${sec}s`;
+    });
+
+    renderPresetButtons();
+    loadAlgorithmFromInput(true);
+
+    // =========================================================================
+    // CHẾ ĐỘ 2: ĐỐ NHẬN DIỆN CÔNG THỨC & LUYỆN PHẢN XẠ
+    // =========================================================================
+    const drillStreakEl = document.getElementById("drill-streak");
+    const drillScoreEl = document.getElementById("drill-score");
+    const drillReactionEl = document.getElementById("drill-reaction");
+    const drillPromptEl = document.getElementById("drill-prompt");
+    const drillFeedbackEl = document.getElementById("drill-feedback");
+    const drillOptionsEl = document.getElementById("drill-options");
+
+    let currentDrillCase = null;
+    let drillAnswered = false;
+    let drillStartTime = 0;
+    let drillStreak = 0;
+    let drillScore = 0;
+
+    function startNextDrillQuestion() {
+      drillAnswered = false;
+      drillFeedbackEl.textContent = "";
+      drillFeedbackEl.className = "mt-2 text-xs font-medium min-h-[18px]";
+
+      const target = CFOP_CASES[Math.floor(Math.random() * CFOP_CASES.length)];
+      currentDrillCase = target;
+
+      // Đặt khối về trạng thái trước khi giải công thức để người chơi nhận diện
+      const moves = parseAlgorithm(target.alg);
+      resetCubeState();
+      invertAlgorithm(moves).forEach((m) => executeMoveInstant(m, false));
+      setStatusBadge("Đố nhận diện");
+
+      drillPromptEl.textContent = `Khối 3D đang ở trạng thái cần giải bằng công thức nào? (${target.group})`;
+
+      // Tạo 4 đáp án (1 đúng + 3 nhiễu ngẫu nhiên)
+      const pool = CFOP_CASES.filter((item) => item.id !== target.id);
+      const shuffledPool = [...pool].sort(() => Math.random() - 0.5).slice(0, 3);
+      const choices = [target, ...shuffledPool].sort(() => Math.random() - 0.5);
+
+      drillOptionsEl.innerHTML = "";
+      choices.forEach((choice) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn-ghost p-2.5 text-xs sm:text-sm font-semibold text-left transition";
+        btn.textContent = choice.name;
+        btn.addEventListener("click", () => handleDrillAnswer(choice, btn));
+        drillOptionsEl.appendChild(btn);
+      });
+
+      drillStartTime = performance.now();
+    }
+
+    function handleDrillAnswer(selectedCase, btnEl) {
+      if (drillAnswered || !currentDrillCase) return;
+      drillAnswered = true;
+
+      const elapsedSec = ((performance.now() - drillStartTime) / 1000).toFixed(2);
+      drillReactionEl.textContent = `${elapsedSec}s`;
+
+      const allOptionBtns = drillOptionsEl.querySelectorAll("button");
+      allOptionBtns.forEach((b) => {
+        b.disabled = true;
+        if (b.textContent === currentDrillCase.name) {
+          b.classList.add("border-emerald-400", "bg-emerald-500/20", "text-emerald-200");
+        }
+      });
+
+      if (selectedCase.id === currentDrillCase.id) {
+        drillStreak += 1;
+        const speedBonus = Math.max(10, Math.round((10 - Math.min(9, parseFloat(elapsedSec))) * 15));
+        drillScore += 100 + speedBonus;
+        drillStreakEl.textContent = String(drillStreak);
+        drillScoreEl.textContent = String(drillScore);
+        drillFeedbackEl.textContent = `Chính xác trong ${elapsedSec}s! Công thức: ${currentDrillCase.alg}`;
+        drillFeedbackEl.className = "mt-2 text-xs font-semibold text-emerald-300 min-h-[18px]";
+      } else {
+        drillStreak = 0;
+        drillStreakEl.textContent = "0";
+        btnEl.classList.add("border-rose-400", "bg-rose-500/20", "text-rose-200");
+        drillFeedbackEl.textContent = `Chưa đúng! Đáp án là ${currentDrillCase.name} (${currentDrillCase.alg}).`;
+        drillFeedbackEl.className = "mt-2 text-xs font-semibold text-rose-300 min-h-[18px]";
+      }
+    }
+
+    document.getElementById("btn-next-drill").addEventListener("click", startNextDrillQuestion);
+
+    document.getElementById("btn-reveal-alg").addEventListener("click", () => {
+      if (!currentDrillCase) return;
+      drillFeedbackEl.textContent = `Gợi ý (${currentDrillCase.name}): ${currentDrillCase.alg}`;
+      drillFeedbackEl.className = "mt-2 text-xs font-mono-num text-amber-300 min-h-[18px]";
+    });
+
+    // =========================================================================
+    // CHẾ ĐỘ 3: ĐỒNG HỒ BẤM GIỜ & LƯU LỊCH SỬ (LOCALSTORAGE)
+    // =========================================================================
+    const timerDisplayEl = document.getElementById("timer-display");
+    const timerScrambleNoteEl = document.getElementById("timer-scramble-note");
+    const btnTimerStartStopEl = document.getElementById("btn-timer-start-stop");
+    const statCountEl = document.getElementById("stat-count");
+    const statBestEl = document.getElementById("stat-best");
+    const statAo5El = document.getElementById("stat-ao5");
+    const solvesListEl = document.getElementById("solves-list");
+
+    let timerRunning = false;
+    let timerStartTs = 0;
+    let timerRafId = null;
+    let currentTimerScramble = [];
+    let solvesHistory = loadSolvesFromStorage();
+
+    function loadSolvesFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveSolvesToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(solvesHistory));
+      } catch (e) {
+        showToast("Không thể lưu vào bộ nhớ trình duyệt.", true);
+      }
+    }
+
+    function formatCentiseconds(ms) {
+      const totalSec = ms / 1000;
+      if (totalSec >= 60) {
+        const mins = Math.floor(totalSec / 60);
+        const rem = (totalSec % 60).toFixed(2).padStart(5, "0");
+        return `${mins}:${rem}`;
+      }
+      return totalSec.toFixed(2).padStart(5, "0");
+    }
+
+    function calculateAo5(list) {
+      if (list.length < 5) return null;
+      // list được lưu mới nhất ở đầu -> lấy 5 lượt gần nhất
+      const last5 = list.slice(0, 5).map((item) => item.timeMs);
+      const sorted = [...last5].sort((a, b) => a - b);
+      // Loại bỏ nhanh nhất và chậm nhất theo chuẩn WCA
+      const trimmed = sorted.slice(1, 4);
+      const avg = trimmed.reduce((sum, v) => sum + v, 0) / 3;
+      return avg;
+    }
+
+    function renderSolvesStats() {
+      statCountEl.textContent = String(solvesHistory.length);
+
+      if (!solvesHistory.length) {
+        statBestEl.textContent = "--";
+        statAo5El.textContent = "--";
+        solvesListEl.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">Chưa có lượt giải nào được lưu.</div>`;
+        return;
+      }
+
+      const bestMs = Math.min(...solvesHistory.map((s) => s.timeMs));
+      statBestEl.textContent = formatCentiseconds(bestMs);
+
+      const ao5Ms = calculateAo5(solvesHistory);
+      statAo5El.textContent = ao5Ms !== null ? formatCentiseconds(ao5Ms) : "--";
+
+      solvesListEl.innerHTML = "";
+      solvesHistory.forEach((solve, idx) => {
+        const row = document.createElement("div");
+        row.className = "flex items-center justify-between bg-slate-900/80 border border-slate-800 rounded-lg px-3 py-2 text-xs";
+
+        const left = document.createElement("div");
+        left.className = "flex items-center gap-2 min-w-0";
+        left.innerHTML = `
+          <span class="font-mono-num text-slate-500">#${solvesHistory.length - idx}</span>
+          <span class="font-mono-num font-bold text-emerald-300">${formatCentiseconds(solve.timeMs)}s</span>
+          <span class="text-[11px] text-slate-400 truncate">${solve.scramble || ""}</span>
+        `;
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.textContent = "✕";
+        delBtn.title = "Xóa lượt này";
+        delBtn.className = "text-slate-500 hover:text-rose-400 ml-2 px-1";
+        delBtn.addEventListener("click", () => {
+          solvesHistory.splice(idx, 1);
+          saveSolvesToStorage();
+          renderSolvesStats();
+        });
+
+        row.appendChild(left);
+        row.appendChild(delBtn);
+        solvesListEl.appendChild(row);
+      });
+    }
+
+    function prepareNewTimerScramble() {
+      currentTimerScramble = generateScramble(18);
+      applyScrambleToCube(currentTimerScramble);
+      timerScrambleNoteEl.textContent = `Scramble: ${currentTimerScramble.join(" ")}`;
+      timerDisplayEl.textContent = "00.00";
+    }
+
+    function updateTimerFrame() {
+      if (!timerRunning) return;
+      const elapsed = performance.now() - timerStartTs;
+      timerDisplayEl.textContent = formatCentiseconds(elapsed);
+      timerRafId = requestAnimationFrame(updateTimerFrame);
+    }
+
+    function toggleTimerRunning() {
+      if (!timerRunning) {
+        timerRunning = true;
+        timerStartTs = performance.now();
+        btnTimerStartStopEl.textContent = "Dừng bấm giờ";
+        btnTimerStartStopEl.classList.remove("btn-neon");
+        btnTimerStartStopEl.classList.add("bg-rose-500", "text-white", "font-bold", "rounded-xl");
+        setStatusBadge("Đang bấm giờ...");
+        updateTimerFrame();
+      } else {
+        timerRunning = false;
+        cancelAnimationFrame(timerRafId);
+        const finalMs = Math.max(10, Math.round(performance.now() - timerStartTs));
+        timerDisplayEl.textContent = formatCentiseconds(finalMs);
+
+        btnTimerStartStopEl.textContent = "Bắt đầu bấm giờ";
+        btnTimerStartStopEl.classList.remove("bg-rose-500", "text-white");
+        btnTimerStartStopEl.classList.add("btn-neon");
+        setStatusBadge("Đã lưu lượt giải");
+
+        solvesHistory.unshift({
+          id: Date.now(),
+          timeMs: finalMs,
+          scramble: currentTimerScramble.join(" ")
+        });
+        saveSolvesToStorage();
+        renderSolvesStats();
+        showToast(`Hoàn thành lượt giải: ${formatCentiseconds(finalMs)}s`);
+      }
+    }
+
+    btnTimerStartStopEl.addEventListener("click", toggleTimerRunning);
+
+    document.getElementById("btn-timer-scramble").addEventListener("click", () => {
+      if (timerRunning) return;
+      prepareNewTimerScramble();
+    });
+
+    document.getElementById("btn-clear-times").addEventListener("click", () => {
+      if (!solvesHistory.length) return;
+      solvesHistory = [];
+      saveSolvesToStorage();
+      renderSolvesStats();
+      showToast("Đã xóa toàn bộ lịch sử lượt giải.");
+    });
+
+    document.getElementById("btn-export-times").addEventListener("click", () => {
+      if (!solvesHistory.length) {
+        showToast("Chưa có dữ liệu lượt giải để xuất.", true);
+        return;
+      }
+      const payload = JSON.stringify({
+        app: "Q&A RUBIK",
+        exportedAt: new Date().toISOString(),
+        solves: solvesHistory
+      }, null, 2);
+
+      const blob = new Blob([payload], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "qa-rubik-solves.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Đã xuất tệp sao lưu qa-rubik-solves.json.");
+    });
+
+    renderSolvesStats();
+
+    // =========================================================================
+    // VÒNG LẶP RENDER 3D CHÍNH
+    // =========================================================================
+    function animateLoop() {
+      requestAnimationFrame(animateLoop);
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener("load", () => {
+      resizeRenderer();
+      animateLoop();
+    });
+  </script>
+</body>
+</html>

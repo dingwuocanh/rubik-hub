@@ -16,7 +16,8 @@ const ASSETS_TO_CACHE = [
   "./js/trainer.js",
   "./js/timer.js",
   "./js/sync.js",
-  "./images/logo.png"
+  "./images/logo.png",
+  "./qa-rubik-3d.html"
 ];
 
 // 1. Cài đặt & tải trước toàn bộ file vào bộ nhớ máy
