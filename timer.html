@@ -3,170 +3,148 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QA Rubik - Trạm Luyện Tập & Bấm Giờ Chuẩn WCA</title>
-  <meta name="description" content="Đồng hồ bấm giờ Rubik trực tuyến chuẩn WCA cho 2x2, 3x3, 4x4 kèm sơ đồ scramble 2D và biểu đồ tiến độ.">
-
-  <!-- Thẻ hiển thị đẹp khi gửi link qua Messenger, Zalo, Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="QA Rubik - Đồng Hồ Bấm Giờ Rubik Chuẩn WCA">
-  <meta property="og:description" content="Bấm giờ luyện tập 2x2, 3x3, 4x4 với chế độ Quan sát 15s, sơ đồ 2D sau scramble và thống kê Ao5, Ao12, Ao100.">
-  <meta property="og:image" content="images/logo.png">
+  <title>Q&A RUBIK - Đồng Hồ Bấm Giờ Chuẩn WCA & Đa Phiên Giải</title>
+  <meta name="description" content="Đồng hồ bấm giờ Rubik chuẩn WCA hỗ trợ 2x2, 3x3, 4x4, quản lý nhiều phiên giải, kiểm tra 15s và phím tắt nhanh.">
 
   <link rel="icon" type="image/png" href="images/logo.png">
+  <link rel="apple-touch-icon" href="images/logo.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#10b981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/timer.css">
 </head>
 <body>
 
   <header class="navbar">
-    <a href="index.html" class="brand" aria-label="Trang chủ QA Rubik">
-      <img src="images/logo.png" alt="Logo QA Rubik" class="brand-logo">
-      <span class="brand-name">QA Rubik</span>
+    <a href="index.html" class="brand" aria-label="Trang chủ Q&A RUBIK">
+      <img src="images/logo.png" alt="Logo Q&A RUBIK" class="brand-logo">
+      <span class="brand-name">Q&A RUBIK</span>
     </a>
 
     <nav aria-label="Menu chính">
       <a href="index.html" class="nav-link">Công thức</a>
+      <a href="trainer.html" class="nav-link">Ôn công thức</a>
       <a href="timer.html" class="nav-link active">Bấm giờ</a>
     </nav>
   </header>
 
-  <main class="timer-layout">
-    
-    <!-- CỘT TRÁI: BẢNG THỐNG KÊ & LỊCH SỬ -->
+  <main class="timer-workspace">
+
+    <!-- CỘT TRÁI: QUẢN LÝ SESSION, THỐNG KÊ & BIỂU ĐỒ -->
     <aside class="stats-sidebar">
-      <div class="sidebar-top">
-        <span class="cube-badge" id="sidebar-cube-label">3x3x3</span>
-        <div class="sidebar-tools">
-          <button id="copy-stats-btn" class="btn-ghost" title="Sao chép thành tích">Chép</button>
-          <button id="import-btn" class="btn-ghost" title="Khôi phục từ file sao lưu JSON">Nhập</button>
-          <button id="export-btn" class="btn-ghost" title="Tải file sao lưu JSON">Xuất</button>
-          <button id="clear-history" class="btn-danger">Xóa</button>
-          <input type="file" id="import-file" accept=".json" style="display: none;">
+
+      <!-- BỘ CHỌN PHIÊN GIẢI (SESSION) -->
+      <div class="session-box">
+        <div class="session-top">
+          <label for="session-select">PHIÊN GIẢI (SESSION)</label>
+          <div class="session-btns">
+            <button type="button" id="new-session-btn" class="s-icon-btn" title="Tạo phiên giải mới">+ Mới</button>
+            <button type="button" id="rename-session-btn" class="s-icon-btn" title="Đổi tên phiên">✎</button>
+            <button type="button" id="delete-session-btn" class="s-icon-btn danger" title="Xóa phiên hiện tại">🗑</button>
+          </div>
+        </div>
+        <select id="session-select" class="session-select"></select>
+      </div>
+
+      <!-- CHỈ SỐ KPI -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span>Tốt nhất (PB)</span>
+          <strong id="stat-best">-</strong>
+        </div>
+        <div class="kpi-card">
+          <span>Trung bình</span>
+          <strong id="stat-mean">-</strong>
+        </div>
+        <div class="kpi-card">
+          <span>Ao5 hiện tại</span>
+          <strong id="stat-ao5">-</strong>
+        </div>
+        <div class="kpi-card">
+          <span>Ao12 hiện tại</span>
+          <strong id="stat-ao12">-</strong>
         </div>
       </div>
 
-      <table class="summary-table">
-        <thead>
-          <tr>
-            <th>CHỈ SỐ</th>
-            <th>HIỆN TẠI</th>
-            <th>TỐT NHẤT</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Đơn (Single)</td>
-            <td id="cur-single">-</td>
-            <td id="best-single" class="pb-text">-</td>
-          </tr>
-          <tr>
-            <td>Mo3</td>
-            <td id="cur-mo3">-</td>
-            <td id="best-mo3" class="pb-text">-</td>
-          </tr>
-          <tr>
-            <td>Ao5</td>
-            <td id="cur-ao5">-</td>
-            <td id="best-ao5" class="pb-text">-</td>
-          </tr>
-          <tr>
-            <td>Ao12</td>
-            <td id="cur-ao12">-</td>
-            <td id="best-ao12" class="pb-text">-</td>
-          </tr>
-          <tr>
-            <td>Ao100</td>
-            <td id="cur-ao100">-</td>
-            <td id="best-ao100" class="pb-text">-</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="session-meta">
-        <span>Đã giải: <strong id="solve-count">0/0</strong></span>
-        <span>Trung bình: <strong id="session-mean">-</strong></span>
+      <!-- BIỂU ĐỒ XU HƯỚNG SVG -->
+      <div class="chart-card">
+        <div class="panel-title">XU HƯỚNG THÀNH TÍCH</div>
+        <div id="trend-chart" class="trend-chart"></div>
       </div>
 
-      <div class="history-table-wrap">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>THỜI GIAN</th>
-              <th>AO5</th>
-              <th>AO12</th>
-            </tr>
-          </thead>
-          <tbody id="history-body"></tbody>
-        </table>
+      <!-- LỊCH SỬ CÁC LƯỢT GIẢI -->
+      <div class="history-card">
+        <div class="history-header">
+          <span id="solve-count-label">LỊCH SỬ (0)</span>
+          <button type="button" id="clear-session-btn" class="btn-clear-mini">Xóa phiên này</button>
+        </div>
+        <div class="table-scroll">
+          <table class="solve-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>THỜI GIAN</th>
+                <th>AO5</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="solve-list-body"></tbody>
+          </table>
+        </div>
       </div>
     </aside>
 
-    <!-- CỘT PHẢI: TRẠM BẤM GIỜ QA RUBIK -->
+    <!-- CỘT PHẢI: SCRAMBLE, ĐỒNG HỒ & PHÍM TẮT -->
     <section class="timer-stage">
-      
-      <div class="command-bar">
-        <div class="cube-switcher" role="group" aria-label="Chọn loại Rubik">
-          <button class="cube-tab" data-cube="2x2">2x2</button>
-          <button class="cube-tab active" data-cube="3x3">3x3</button>
-          <button class="cube-tab" data-cube="4x4">4x4</button>
+
+      <!-- KHUNG SCRAMBLE & BỘ MÔN -->
+      <div class="scramble-panel">
+        <div class="scramble-controls">
+          <div class="puzzle-switch" id="puzzle-switch">
+            <button type="button" class="pz-btn" data-pz="222">2x2</button>
+            <button type="button" class="pz-btn active" data-pz="333">3x3</button>
+            <button type="button" class="pz-btn" data-pz="444">4x4</button>
+          </div>
+
+          <label class="wca-toggle">
+            <input type="checkbox" id="wca-inspection-toggle">
+            <span>Kiểm tra WCA (15s)</span>
+          </label>
+
+          <button type="button" id="new-scramble-btn" class="btn" title="Phím tắt: Alt + N">↻ Đổi scramble</button>
         </div>
 
-        <div class="mode-controls">
-          <button id="inspection-toggle" class="toggle-pill" aria-pressed="false">
-            <span class="status-dot"></span>
-            Quan sát 15s: <strong id="inspection-status">TẮT</strong>
-          </button>
-          <button id="new-scramble-btn" class="btn">↻ Đổi Scramble</button>
-        </div>
+        <p id="scramble-text" class="scramble-text">Đang tạo chuỗi tráo...</p>
       </div>
 
-      <div class="scramble-box">
-        <p id="scramble">Đang tạo scramble...</p>
-      </div>
-
-      <div class="clock-area">
-        <div class="timer-glow-bg"></div>
+      <!-- KHU VỰC ĐỒNG HỒ CHÍNH -->
+      <div class="clock-zone" id="clock-zone">
+        <div class="clock-glow"></div>
+        <div id="inspection-badge" class="inspection-badge hidden">THỜI GIAN QUAN SÁT WCA</div>
         <div id="timer-display">0.00</div>
-        
-        <div class="live-averages">
-          <span>ao5 <strong id="live-ao5">-</strong></span>
-          <span class="divider">•</span>
-          <span>ao12 <strong id="live-ao12">-</strong></span>
-        </div>
-
-        <p class="hint" id="timer-hint">Giữ <strong>Space</strong> (hoặc chạm giữ vào số) 0.4s đến khi chuyển xanh, thả ra để chạy</p>
+        <p id="timer-hint" class="timer-hint">Giữ phím <strong>Space</strong> (hoặc chạm giữ vào số) 0.4s để chuẩn bị</p>
       </div>
 
-      <div class="quick-action-dock" id="quick-dock">
-        <span class="last-solve-label" id="last-solve-label">Chưa có lượt giải</span>
-        <div class="quick-btns">
-          <button class="q-btn active" data-quick="OK" disabled>OK</button>
-          <button class="q-btn" data-quick="+2" disabled>+2</button>
-          <button class="q-btn" data-quick="DNF" disabled>DNF</button>
-          <button class="q-btn q-del" id="quick-del-btn" disabled>Xóa</button>
-        </div>
-      </div>
-
-      <div class="telemetry-deck">
-        <div class="telemetry-card chart-card">
-          <div class="card-header-mini">
-            <span>XU HƯỚNG 50 LẦN GẦN NHẤT</span>
-            <div class="chart-legend">
-              <span class="leg-single">— Đơn</span>
-              <span class="leg-ao5">— Ao5</span>
-            </div>
-          </div>
-          <div class="chart-box" id="chart-container">
-            <svg id="trend-chart" viewBox="0 0 500 110" preserveAspectRatio="none"></svg>
+      <!-- THANH THAO TÁC NHANH & HƯỚNG DẪN PHÍM TẮT -->
+      <div class="bottom-dock">
+        <div class="last-actions">
+          <span id="last-time-info" class="last-time-info">Chưa có lượt giải nào</span>
+          <div class="penalty-group">
+            <button type="button" class="pen-btn active" data-pen="OK" disabled>OK</button>
+            <button type="button" class="pen-btn" data-pen="+2" disabled title="Alt + 2">+2</button>
+            <button type="button" class="pen-btn" data-pen="DNF" disabled title="Alt + D">DNF</button>
+            <button type="button" class="pen-btn del" id="del-last-btn" disabled title="Alt + Z">Xóa</button>
           </div>
         </div>
 
-        <div class="telemetry-card net-card">
-          <div class="card-header-mini">
-            <span>MÔ PHỎNG SAU SCRAMBLE</span>
-          </div>
-          <div id="cube-net" class="cube-net"></div>
+        <div class="shortcut-bar">
+          <span><kbd>Alt</kbd>+<kbd>2</kbd> Phạt +2</span>
+          <span><kbd>Alt</kbd>+<kbd>D</kbd> DNF</span>
+          <span><kbd>Alt</kbd>+<kbd>Z</kbd> Xóa lượt cuối</span>
+          <span><kbd>Alt</kbd>+<kbd>N</kbd> Scramble mới</span>
         </div>
       </div>
 
@@ -174,26 +152,10 @@
   </main>
 
   <footer class="site-footer">
-    <p>© 2026 <strong>QA Rubik</strong> • Công cụ tra cứu Full CFOP & Luyện tập Speedcubing</p>
+    <p>© 2026 <strong>Q&A RUBIK</strong> • Công cụ tra cứu Full CFOP & Luyện tập Speedcubing</p>
   </footer>
 
-  <div id="solve-modal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modal-title">Chi tiết lượt #1</h3>
-        <button id="close-modal" class="close-btn">&times;</button>
-      </div>
-      <p class="modal-time" id="modal-time">12.34s</p>
-      <p class="modal-scramble" id="modal-scramble">R U R' U'</p>
-      <div class="modal-actions">
-        <button class="btn" data-penalty="OK">Hợp lệ (OK)</button>
-        <button class="btn" data-penalty="+2">Phạt +2</button>
-        <button class="btn" data-penalty="DNF">DNF</button>
-        <button id="delete-solve-btn" class="btn-danger">Xóa lượt</button>
-      </div>
-    </div>
-  </div>
-
   <script src="js/timer.js"></script>
+  <script src="js/sync.js"></script>
 </body>
 </html>

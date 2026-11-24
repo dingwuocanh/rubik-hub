@@ -447,6 +447,7 @@ function renderFormulas() {
           <div class="card-top">
             <span class="badge ${badgeClass}">${item.code}</span>
             <div class="card-actions">
+              ${item.cat !== "F2L" ? `<a href="trainer.html?case=${item.id}" class="icon-btn" style="text-decoration:none;" title="Luyện riêng thế này">⚡ Luyện</a>` : ""}
               <button class="icon-btn learn-btn ${isLearned ? "active" : ""}" data-id="${item.id}" title="Đánh dấu đã thuộc">
                 ${isLearned ? "✓ Đã thuộc" : "+ Học"}
               </button>

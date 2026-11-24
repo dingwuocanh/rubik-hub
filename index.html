@@ -3,29 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QA Rubik - Thư Viện Full 119 Công Thức CFOP & Bấm Giờ</title>
+  <title>Q&A RUBIK - Thư Viện Full 119 Công Thức CFOP & Bấm Giờ</title>
   <meta name="description" content="Thư viện trọn bộ 119 công thức CFOP (Full 41 F2L, 57 OLL, 21 PLL) trực quan kèm đồng hồ bấm giờ chuẩn WCA.">
   
   <!-- Thẻ hiển thị đẹp khi gửi link qua Messenger, Zalo, Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="QA Rubik - Thư Viện Full CFOP & Đồng Hồ Bấm Giờ WCA">
+  <meta property="og:title" content="Q&A RUBIK - Thư Viện Full CFOP & Đồng Hồ Bấm Giờ WCA">
   <meta property="og:description" content="Tra cứu nhanh 119 công thức F2L, OLL, PLL kèm sơ đồ nhận diện và luyện tập với đồng hồ chuẩn thi đấu.">
   <meta property="og:image" content="images/logo.png">
 
   <link rel="icon" type="image/png" href="images/logo.png">
+  <!-- Hiển thị logo khi ghim ra màn hình chính điện thoại -->
+  <link rel="apple-touch-icon" href="images/logo.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="images/logo.png">
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#10b981">
+
+  <!-- Mở toàn màn hình như ứng dụng thật (ẩn thanh địa chỉ trình duyệt) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/formulas.css">
 </head>
 <body>
 
   <header class="navbar">
-    <a href="index.html" class="brand" aria-label="Trang chủ QA Rubik">
-      <img src="images/logo.png" alt="Logo QA Rubik" class="brand-logo">
-      <span class="brand-name">QA Rubik</span>
+    <a href="index.html" class="brand" aria-label="Trang chủ Q&A RUBIK">
+      <img src="images/logo.png" alt="Logo Q&A RUBIK" class="brand-logo">
+      <span class="brand-name">Q&A RUBIK</span>
     </a>
 
     <nav aria-label="Menu chính">
       <a href="index.html" class="nav-link active">Công thức</a>
+      <a href="trainer.html" class="nav-link">Ôn công thức</a>
       <a href="timer.html" class="nav-link">Bấm giờ</a>
     </nav>
   </header>
@@ -63,9 +74,11 @@
   </main>
 
   <footer class="site-footer">
-    <p>© 2026 <strong>QA Rubik</strong> • Công cụ tra cứu Full CFOP & Luyện tập Speedcubing</p>
+    <p>© 2026 <strong>Q&A RUBIK</strong> • Công cụ tra cứu Full CFOP & Luyện tập Speedcubing</p>
   </footer>
 
   <script src="js/formulas.js"></script>
+  <script src="js/custom-notes.js"></script>
+  <script src="js/sync.js"></script>
 </body>
 </html>

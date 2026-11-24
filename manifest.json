@@ -1,0 +1,23 @@
+{
+  "name": "Q&A RUBIK - Tra Cứu CFOP & Bấm Giờ",
+  "short_name": "Q&A RUBIK",
+  "description": "Thư viện 119 công thức CFOP, ôn phản xạ OLL/PLL và đồng hồ bấm giờ chuẩn WCA.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0e14",
+  "theme_color": "#10b981",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

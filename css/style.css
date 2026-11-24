@@ -1,3 +1,6 @@
+/* Dán ở dòng 1 của file css/style.css */
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@700&display=swap');
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -17,63 +20,85 @@ body {
   outline-offset: 2px;
 }
 
+/* THANH ĐIỀU HƯỚNG HIỆN ĐẠI (SEGMENTED PILL NAVBAR) */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 5%;
-  background-color: #161b22;
-  border-bottom: 1px solid #30363d;
-  position: sticky; /* Giữ thanh menu cố định trên cùng khi cuộn trang */
+  gap: 16px;
+  padding: 10px 24px;
+  background-color: rgba(17, 22, 29, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #222b36;
+  position: sticky;
   top: 0;
   z-index: 100;
 }
 
-/* Khu vực Logo + Tên thương hiệu */
 .brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px; /* Tăng khoảng cách một chút để logo nổi bật */
   text-decoration: none;
-  color: #f0f6fc;
-  font-weight: 700;
-  font-size: 1.35rem;
+  transition: transform 0.2s ease;
+}
+
+.brand:hover {
+  transform: scale(1.03); /* Nghiêng nhẹ khi rê chuột cực kỳ chuyên nghiệp */
 }
 
 .brand-logo {
-  width: 36px; /* Kích thước chuẩn gọn cho logo trên thanh menu */
-  height: 36px;
+  width: 34px;
+  height: 34px;
   object-fit: contain;
-  border-radius: 8px;
 }
 
 .brand-name {
-  color: #10b981; /* Màu nhấn thương hiệu */
-  letter-spacing: -0.5px;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  /* Tạo màu chữ gradient chuyển tiếp từ xanh ngọc sang xanh lục bảo rực rỡ */
+  background: linear-gradient(135deg, #a7f3d0 0%, #34d399 45%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.15); /* Chữ phát sáng nhẹ */
 }
 
-nav {
-  display: flex;
-  gap: 8px;
+/* KHAY CHỨA 3 NÚT MENU LIỀN KHỐI */
+.navbar nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #0b0e14;
+  border: 1px solid #222b36;
+  padding: 4px;
+  border-radius: 10px;
 }
 
 .nav-link {
   color: #8b949e;
   text-decoration: none;
-  padding: 8px 14px; /* Vùng bấm rộng rãi hơn trên điện thoại */
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.2s;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 7px 15px;
+  border-radius: 7px;
+  white-space: nowrap;
+  text-align: center;
+  transition: all 0.2s ease;
 }
 
 .nav-link:hover {
   color: #f0f6fc;
-  background-color: #21262d;
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .nav-link.active {
-  color: #10b981;
-  background-color: rgba(16, 185, 129, 0.12);
+  background-color: #10b981;
+  color: #0b0e14;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
 }
 
 .container {
@@ -118,20 +143,27 @@ button, a {
 
 @media (max-width: 480px) {
   .navbar {
+    flex-direction: column;
+    align-items: stretch;
     padding: 10px 14px;
+    gap: 10px;
   }
+
   .brand {
-    font-size: 1.15rem;
-    gap: 8px;
+    justify-content: center;
   }
-  .brand-logo {
-    width: 32px;
-    height: 32px;
+
+  .navbar nav {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
   }
+
   .nav-link {
-    padding: 6px 10px;
-    font-size: 0.9rem;
+    padding: 8px 6px;
+    font-size: 0.84rem;
   }
+
   .container {
     margin: 18px auto;
     padding: 0 14px;
