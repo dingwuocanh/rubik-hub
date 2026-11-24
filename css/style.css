@@ -61,6 +61,7 @@ body {
   letter-spacing: 0.5px;
   /* Tạo màu chữ gradient chuyển tiếp từ xanh ngọc sang xanh lục bảo rực rỡ */
   background: linear-gradient(135deg, #a7f3d0 0%, #34d399 45%, #10b981 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 20px rgba(16, 185, 129, 0.15); /* Chữ phát sáng nhẹ */
